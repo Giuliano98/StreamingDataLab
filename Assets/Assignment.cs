@@ -38,6 +38,7 @@ Lab Part 1
 
 public partial class PartyCharacter
 {
+
     public int classID;
 
     public int health;
