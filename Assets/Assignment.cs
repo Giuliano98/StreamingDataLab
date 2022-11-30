@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.IO;
 
 #region Assignment Instructions
 
@@ -73,6 +74,11 @@ public partial class PartyCharacter
 
 static public class AssignmentPart1
 {
+    enum pcSignifier
+    {
+        StatsData = 0,
+        EquipmentData,
+    }
 
     static public void SavePartyButtonPressed()
     {
@@ -80,22 +86,66 @@ static public class AssignmentPart1
         {
             Debug.Log("PC class id == " + pc.classID);
         }
+
+        // % get a ref of the pc on screen
+        LinkedList<PartyCharacter> myPartyCharacters = GameContent.partyCharacters;
+
+        // % Write each pc data on a txt
+        using (StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + "MyParty.txt"))
+        {
+            foreach (var pc in myPartyCharacters)
+            {
+                sw.WriteLine((int)pcSignifier.StatsData + "," +
+                pc.classID + "," +
+                pc.health + "," +
+                pc.mana + "," +
+                pc.strength + "," +
+                pc.agility + "," +
+                pc.wisdom);
+
+                foreach (var equip in pc.equipment)
+                {
+                    sw.WriteLine((int)pcSignifier.EquipmentData + "," + equip);
+                }
+            }
+        }
     }
 
     static public void LoadPartyButtonPressed()
     {
-        GameContent.partyCharacters.Clear();
+        // % get a ref of the pc on screen (to add last)
+        LinkedList<PartyCharacter> myPartyCharacters = GameContent.partyCharacters;
 
-        PartyCharacter pc = new PartyCharacter(1, 10, 10, 10, 10, 10);
-        GameContent.partyCharacters.AddLast(pc);
-        pc = new PartyCharacter(2, 11, 11, 11, 11, 11);
-        GameContent.partyCharacters.AddLast(pc);
-        pc = new PartyCharacter(3, 12, 12, 12, 12, 12);
-        GameContent.partyCharacters.AddLast(pc);
+        myPartyCharacters.Clear();
+
+        using (StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + "MyParty.txt"))
+        {
+            string line;
+
+            while ((line = sr.ReadLine()) != null)
+            {
+                string[] arrData = line.Split(',');
+                int signifier = int.Parse(arrData[0]);
+
+                if (signifier == (int)pcSignifier.StatsData)
+                {
+                    PartyCharacter pc = new PartyCharacter(int.Parse(arrData[1]),
+                    int.Parse(arrData[2]),
+                    int.Parse(arrData[3]),
+                    int.Parse(arrData[4]),
+                    int.Parse(arrData[5]),
+                    int.Parse(arrData[6]));
+                    myPartyCharacters.AddLast(pc);
+                }
+                else if (signifier == (int)pcSignifier.EquipmentData)
+                {
+                    myPartyCharacters.Last.Value.equipment.AddLast(int.Parse(arrData[1]));
+                }
+            }
+        }
 
         GameContent.RefreshUI();
     }
-
 }
 
 
