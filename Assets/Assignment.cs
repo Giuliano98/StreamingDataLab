@@ -210,6 +210,7 @@ static public class AssignmentPart2
     static string dirPath = Application.dataPath + Path.DirectorySeparatorChar;
     static string PartiesDataFile = "PartiesData.txt";
     static int lastIndexUsed;
+    static string currentPartyName = "";
 
     static public void GameStart()
     {
@@ -237,9 +238,8 @@ static public class AssignmentPart2
                 }
             }
         }
-
+        //currentPartyName = listOfPartyNames[0];
         UpdateListOfPartyNames();
-
         GameContent.RefreshUI();
     }
 
@@ -259,7 +259,7 @@ static public class AssignmentPart2
     static public void LoadPartyDropDownChanged(string selectedName)
     {
         GameContent.partyCharacters.Clear();
-
+        currentPartyName = selectedName;
         int indexToLoad = -1;
 
         foreach (var nameAndIndex in listIndexAndName)
@@ -316,7 +316,6 @@ static public class AssignmentPart2
             listIndexAndName.AddLast(new PartyIndexAndName(lastIndexUsed, GameContent.GetPartyNameFromInput()));
         }
 
-
         GameContent.RefreshUI();
 
         SaveIndexManagementFile();
@@ -358,6 +357,37 @@ static public class AssignmentPart2
     }
     static public void DeletePartyButtonPressed()
     {
+        LinkedList<PartyIndexAndName> tempList = new LinkedList<PartyIndexAndName>();
+        foreach (var nameAndIndex in listIndexAndName)
+        {
+            if (!(nameAndIndex.name == currentPartyName))
+                tempList.AddLast(nameAndIndex);
+        }
+        listIndexAndName = tempList;
+        SaveIndexManagementFile();
+
+        // int indexToDeleted = -1;
+
+        // foreach (var nameAndIndex in listIndexAndName)
+        // {
+        //     if (nameAndIndex.name == currentPartyName)
+        //         indexToDeleted = nameAndIndex.index;
+        // }
+
+        // using (StreamWriter sw = new StreamWriter(dirPath + PartiesDataFile))
+        // {
+        //     sw.WriteLine((int)pcSignifier.LastIndexUsed + "," + lastIndexUsed);
+
+        //     foreach (var indexAndName in listIndexAndName)
+        //     {
+        //         if (!(indexAndName.index == indexToDeleted))
+        //         {
+        //             sw.WriteLine((int)pcSignifier.IndexAndName + "," + indexAndName.index + "," + indexAndName.name);
+        //         }
+        //     }
+        // }
+
+        GameContent.partyCharacters.Clear();
         GameContent.RefreshUI();
     }
 
