@@ -198,15 +198,48 @@ Good luck, journey well.
 
 static public class AssignmentPart2
 {
-
+    enum pcSignifier
+    {
+        StatsData = 0,
+        EquipmentData,
+        LastIndexUsed,
+        IndexAndName,
+    }
     static List<string> listOfPartyNames;
+    static LinkedList<PartyIndexAndName> listIndexAndName;
+    static string dirPath = Application.dataPath + Path.DirectorySeparatorChar;
+    static string PartiesDataFile = "PartiesData.txt";
+    static int lastIndexUsed;
 
     static public void GameStart()
     {
+
         listOfPartyNames = new List<string>();
-        listOfPartyNames.Add("sample 1");
-        listOfPartyNames.Add("sample 2");
-        listOfPartyNames.Add("sample 3");
+        listIndexAndName = new LinkedList<PartyIndexAndName>();
+        if (File.Exists(dirPath + PartiesDataFile))
+        {
+            using (StreamReader sr = new StreamReader(dirPath + PartiesDataFile))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] arrData = line.Split(',');
+                    int signifier = int.Parse(arrData[0]);
+
+                    if (signifier == (int)pcSignifier.LastIndexUsed)
+                    {
+                        lastIndexUsed = int.Parse(arrData[1]);
+                    }
+                    else if (signifier == (int)pcSignifier.IndexAndName)
+                    {
+                        listIndexAndName.AddLast(new PartyIndexAndName(int.Parse(arrData[1]), arrData[2]));
+                    }
+                }
+            }
+        }
+
+
+
 
         GameContent.RefreshUI();
     }
@@ -218,19 +251,116 @@ static public class AssignmentPart2
 
     static public void LoadPartyDropDownChanged(string selectedName)
     {
+        LinkedList<PartyCharacter> myPartyCharacters = GameContent.partyCharacters;
+        myPartyCharacters.Clear();
+
+        using (StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + "MyParty.txt"))
+        {
+            string line;
+
+            while ((line = sr.ReadLine()) != null)
+            {
+                string[] arrData = line.Split(',');
+                int signifier = int.Parse(arrData[0]);
+
+                if (signifier == (int)pcSignifier.StatsData)
+                {
+                    PartyCharacter pc = new PartyCharacter(int.Parse(arrData[1]),
+                    int.Parse(arrData[2]),
+                    int.Parse(arrData[3]),
+                    int.Parse(arrData[4]),
+                    int.Parse(arrData[5]),
+                    int.Parse(arrData[6]));
+                    myPartyCharacters.AddLast(pc);
+                }
+                else if (signifier == (int)pcSignifier.EquipmentData)
+                {
+                    myPartyCharacters.Last.Value.equipment.AddLast(int.Parse(arrData[1]));
+                }
+            }
+        }
+
         GameContent.RefreshUI();
     }
 
     static public void SavePartyButtonPressed()
     {
+
+        bool bUniqueName = true;
+
+        foreach (var nameAndIndex in listIndexAndName)
+        {
+            if (nameAndIndex.name == GameContent.GetPartyNameFromInput())
+            {
+                SaveParty(dirPath + nameAndIndex.index + ".txt");
+                bUniqueName = false;
+            }
+        }
+
+        if (bUniqueName)
+        {
+            lastIndexUsed++;
+            SaveParty(dirPath + lastIndexUsed + ".txt");
+            listIndexAndName.AddLast(new PartyIndexAndName(lastIndexUsed, GameContent.GetPartyNameFromInput()));
+        }
+
+
         GameContent.RefreshUI();
+
+        SaveIndexManagementFile();
     }
 
+    static public void SaveParty(string fileName)
+    {
+        using (StreamWriter sw = new StreamWriter(fileName))
+        {
+            foreach (var pc in GameContent.partyCharacters)
+            {
+                sw.WriteLine((int)pcSignifier.StatsData + "," +
+                pc.classID + "," +
+                pc.health + "," +
+                pc.mana + "," +
+                pc.strength + "," +
+                pc.agility + "," +
+                pc.wisdom);
+
+                foreach (var equip in pc.equipment)
+                {
+                    sw.WriteLine((int)pcSignifier.EquipmentData + "," + equip);
+                }
+            }
+        }
+    }
+
+    static public void SaveIndexManagementFile()
+    {
+        using (StreamWriter sw = new StreamWriter(dirPath + PartiesDataFile))
+        {
+            sw.WriteLine((int)pcSignifier.LastIndexUsed + "," + lastIndexUsed);
+
+            foreach (var indexAndName in listIndexAndName)
+            {
+                sw.Write((int)pcSignifier.IndexAndName + "," + indexAndName.index + indexAndName.name);
+            }
+        }
+    }
     static public void DeletePartyButtonPressed()
     {
         GameContent.RefreshUI();
     }
 
+
+}
+
+public class PartyIndexAndName
+{
+    public int index;
+    public string name;
+    public PartyIndexAndName(int index, string name)
+    {
+        this.index = index;
+        this.name = name;
+    }
 }
 
 #endregion
