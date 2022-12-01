@@ -340,7 +340,7 @@ static public class AssignmentPart2
 
             foreach (var indexAndName in listIndexAndName)
             {
-                sw.Write((int)pcSignifier.IndexAndName + "," + indexAndName.index + indexAndName.name);
+                sw.Write((int)pcSignifier.IndexAndName + "," + indexAndName.index + "," + indexAndName.name);
             }
         }
     }
