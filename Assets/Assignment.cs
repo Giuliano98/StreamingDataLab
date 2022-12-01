@@ -238,26 +238,39 @@ static public class AssignmentPart2
             }
         }
 
-
-
+        UpdateListOfPartyNames();
 
         GameContent.RefreshUI();
     }
 
     static public List<string> GetListOfPartyNames()
     {
+        UpdateListOfPartyNames();
         return listOfPartyNames;
     }
-
+    static public void UpdateListOfPartyNames()
+    {
+        listOfPartyNames.Clear();
+        foreach (var indexAndName in listIndexAndName)
+        {
+            listOfPartyNames.Add(indexAndName.name);
+        }
+    }
     static public void LoadPartyDropDownChanged(string selectedName)
     {
-        LinkedList<PartyCharacter> myPartyCharacters = GameContent.partyCharacters;
-        myPartyCharacters.Clear();
+        GameContent.partyCharacters.Clear();
 
-        using (StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + "MyParty.txt"))
+        int indexToLoad = -1;
+
+        foreach (var nameAndIndex in listIndexAndName)
+        {
+            if (nameAndIndex.name == selectedName)
+                indexToLoad = nameAndIndex.index;
+        }
+
+        using (StreamReader sr = new StreamReader(dirPath + indexToLoad + ".txt"))
         {
             string line;
-
             while ((line = sr.ReadLine()) != null)
             {
                 string[] arrData = line.Split(',');
@@ -271,11 +284,11 @@ static public class AssignmentPart2
                     int.Parse(arrData[4]),
                     int.Parse(arrData[5]),
                     int.Parse(arrData[6]));
-                    myPartyCharacters.AddLast(pc);
+                    GameContent.partyCharacters.AddLast(pc);
                 }
                 else if (signifier == (int)pcSignifier.EquipmentData)
                 {
-                    myPartyCharacters.Last.Value.equipment.AddLast(int.Parse(arrData[1]));
+                    GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(arrData[1]));
                 }
             }
         }
