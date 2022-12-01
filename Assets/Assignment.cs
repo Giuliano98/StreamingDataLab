@@ -285,7 +285,6 @@ static public class AssignmentPart2
 
     static public void SavePartyButtonPressed()
     {
-
         bool bUniqueName = true;
 
         foreach (var nameAndIndex in listIndexAndName)
@@ -340,7 +339,7 @@ static public class AssignmentPart2
 
             foreach (var indexAndName in listIndexAndName)
             {
-                sw.Write((int)pcSignifier.IndexAndName + "," + indexAndName.index + "," + indexAndName.name);
+                sw.WriteLine((int)pcSignifier.IndexAndName + "," + indexAndName.index + "," + indexAndName.name);
             }
         }
     }
