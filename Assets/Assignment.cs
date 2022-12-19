@@ -366,27 +366,6 @@ static public class AssignmentPart2
         listIndexAndName = tempList;
         SaveIndexManagementFile();
 
-        // int indexToDeleted = -1;
-
-        // foreach (var nameAndIndex in listIndexAndName)
-        // {
-        //     if (nameAndIndex.name == currentPartyName)
-        //         indexToDeleted = nameAndIndex.index;
-        // }
-
-        // using (StreamWriter sw = new StreamWriter(dirPath + PartiesDataFile))
-        // {
-        //     sw.WriteLine((int)pcSignifier.LastIndexUsed + "," + lastIndexUsed);
-
-        //     foreach (var indexAndName in listIndexAndName)
-        //     {
-        //         if (!(indexAndName.index == indexToDeleted))
-        //         {
-        //             sw.WriteLine((int)pcSignifier.IndexAndName + "," + indexAndName.index + "," + indexAndName.name);
-        //         }
-        //     }
-        // }
-
         GameContent.partyCharacters.Clear();
         GameContent.RefreshUI();
     }
